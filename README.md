@@ -50,7 +50,7 @@ Note: You will also need to create a custom policy as the following and add to
 }
 ```
 
-## Deploying Ops Manager
+## Deploying Ops Manager and Configuring the BOSH Director
 
 Depending if you're deploying PAS or PKS you need to perform the following steps:
 
@@ -64,6 +64,13 @@ Depending if you're deploying PAS or PKS you need to perform the following steps
   terraform plan -out=pcf.tfplan
   terraform apply plan
   ```
+1. Set the login and password for Opsman and configure the AWS BOSH Director:
+  ```
+  PROJECT_DIR=$(dirname $PWD) ../scripts/configure-director ${PWD##*/} ${OM_PASSWORD}
+  ```
+1. For next steps on some products, see here:
+  * PAS: [terraforming-pas](./terraforming-pas/README.md)
+  * PKS: [terraforking-pks](./terraforming-pks/README.md)
 
 ### Var File
 
@@ -98,6 +105,22 @@ tags = {
     Team = "Dev"
     Project = "WebApp3"
 }
+```
+
+#### Tips
+
+##### Keep Secrets out of var files
+Alternatively, if you don't want to put sensitive variables into the file, you can pass them during the plan:
+```
+terraform plan -out=pcf.tfplan -var "secret_key=$AWS_SECRET_ACCESS_KEY" -var "access_key=$AWS_ACCESS_KEY_ID"
+```
+
+##### Get the latest OpsMan AMI
+
+If you have the `pivnet` cli installed:
+```
+pivnet dlpf -p ops-manager -r $(pivnet releases -p ops-manager --format json | jq -r -c ".[0].version") -g '*AWS.yml'
+cat OpsManager*.yml | grep $AWS_DEFAULT_REGION
 ```
 
 ### Variables
@@ -147,6 +170,10 @@ You can choose whether you would like an RDS or not. By default we have
 `rds_instance_count` set to `0` but setting it to `1` will deploy an RDS instance.
 
 Note: RDS instances take a long time to deploy, keep that in mind. They're not required.
+
+### Creating a Load Balancer for a new Kubernetes Cluster created with PKS.
+
+See [terraforming-k8s](./terraforming-k8s/README.md) subfolder.
 
 ## Tearing down environment
 

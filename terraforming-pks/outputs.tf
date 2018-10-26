@@ -35,7 +35,7 @@ output "ops_manager_iam_user_access_key" {
 }
 
 output "ops_manager_iam_user_secret_key" {
-  value = "${module.ops_manager.ops_manager_iam_user_secret_key}"
+  value     = "${module.ops_manager.ops_manager_iam_user_secret_key}"
   sensitive = true
 }
 
@@ -157,6 +157,10 @@ output "pks_api_endpoint" {
   value = "${module.pks.domain}"
 }
 
+output "pks_domain" {
+  value = "${var.env_name}.${var.dns_suffix}"
+}
+
 output "pks_subnet_ids" {
   value = "${module.pks.pks_subnet_ids}"
 }
@@ -213,4 +217,8 @@ output "services_subnet_cidrs" {
 
 output "services_subnet_gateways" {
   value = "${module.pks.services_subnet_gateways}"
+}
+
+output "tags" {
+  value = "${local.actual_tags}"
 }

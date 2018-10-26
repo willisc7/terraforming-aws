@@ -1,0 +1,30 @@
+#!/bin/bash -exu
+
+command -v jq >/dev/null 2>&1 || { echo >&2 "I require jq but it's not installed.  Aborting."; exit 1; }
+command -v om >/dev/null 2>&1 || { echo >&2 "I require om but it's not installed.  Aborting."; exit 1; }
+command -v terraform >/dev/null 2>&1 || { echo >&2 "I require terraform but it's not installed.  Aborting."; exit 1; }
+command -v pks >/dev/null 2>&1 || { echo >&2 "I require pks but it's not installed.  Aborting."; exit 1; }
+
+main() {
+
+    CLUSTER_NAME=$1
+    CLUSTER_UUID=$(pks cluster ${CLUSTER_NAME} --json | jq -c -r ".uuid")
+    CLUSTER_HOST=$(pks cluster ${CLUSTER_NAME} --json | jq -c -r ".parameters.kubernetes_master_host")
+
+    OM_USERNAME=$2
+    OM_PASSWORD=$3
+    OM_HOST=$(terraform output -state=../terraforming-pks/terraform.tfstate ops_manager_dns)
+
+    BOSH_CMD=$(om -k curl --silent --path /api/v0/deployed/director/credentials/bosh_commandline_credentials | jq -c -r ".credential")
+    terraform output -state=../terraforming-pks/terraform.tfstate  ops_manager_ssh_private_key > ops_manager_ssh_private_key.pem
+    chmod 600 ops_manager_ssh_private_key.pem
+    MASTER_INSTANCE_ID=$(ssh -oStrictHostKeyChecking=accept-new -oUserKnownHostsFile=/dev/null ubuntu@${OM_HOST} -i ops_manager_ssh_private_key.pem $BOSH_CMD -d service-instance_${CLUSTER_UUID} vms --json | jq -r -c '.Tables[0].Rows[] | select(.instance | startswith("master")) | .vm_cid')
+
+    echo "MASTER_INSTANCE_ID=$MASTER_INSTANCE_ID"
+
+    terraform init
+    terraform plan -out=pcf.tfplan -var "cluster_host=${CLUSTER_HOST}" -var "cluster_name=${CLUSTER_NAME}" -var "instances=[\"${MASTER_INSTANCE_ID}\"]"
+    # terraform apply "pcf.tfplan"
+}
+
+main "$@"

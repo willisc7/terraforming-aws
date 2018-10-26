@@ -1,0 +1,20 @@
+network-properties:
+  network:
+    name: pas
+  service_network:
+    name: services
+  other_availability_zones:
+    {{range .azs}}
+    - name: {{.}}
+    {{end}}
+  singleton_availability_zone:
+    name: {{index .azs 0}}
+product-properties:
+  .healthwatch-forwarder.foundation_name:
+    value: {{.apps_domain}}
+  .properties.opsman.enable.url:
+    value: {{.ops_manager_dns}}
+  .healthwatch-forwarder.health_check_az:
+    value: {{index .azs 0}}
+  .properties.boshtasks:
+    value: disable

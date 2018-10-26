@@ -58,7 +58,10 @@ resource "aws_subnet" "public_subnets" {
   cidr_block        = "${cidrsubnet(local.public_cidr, 2, count.index)}"
   availability_zone = "${element(var.availability_zones, count.index)}"
 
-  tags = "${merge(var.tags, map("Name", "${var.env_name}-public-subnet${count.index}"))}"
+  tags = "${merge(var.tags, map("Name", "${var.env_name}-public-subnet${count.index}"), 
+      map("kubernetes.io/role/elb", "1"), 
+      map("kubernetes.io/cluster/service-instance_4a7a5305-88dc-4d90-9785-fc86b08c3d08", "shared"), 
+      map("SubnetType", "Utility"))}"
 }
 
 resource "aws_route_table_association" "route_public_subnets" {

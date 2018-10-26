@@ -33,7 +33,27 @@ product-properties:
     - {{.}}
     {{end}}
   .properties.plan2_selector:
-    value: "Plan Inactive"
+    value: "Plan Active"
+  .properties.plan2_selector.active.master_instances:
+    value: "1"
+  .properties.plan2_selector.active.master_vm_type:
+    value: m4.large
+  .properties.plan2_selector.active.worker_instances:
+    value: "3"
+  .properties.plan2_selector.active.worker_vm_type:
+    value: t2.medium
+  .properties.plan2_selector.active.errand_vm_type:
+    value: t2.micro
+  .properties.plan2_selector.active.master_az_placement:
+    value:
+    - {{index .azs 0}}
+  .properties.plan2_selector.active.worker_az_placement:
+    value:
+    {{range .azs}}
+    - {{.}}
+    {{end}}
+  .properties.plan2_selector.active.allow_privileged_containers: 
+    value: true
   .properties.plan3_selector:
     value: "Plan Inactive"
   .properties.cloud_provider:
