@@ -6,7 +6,7 @@ resource "aws_route_table" "private_route_table" {
 
   route {
     cidr_block  = "0.0.0.0/0"
-    instance_id = "${aws_instance.nat.id}"
+    nat_gateway_id = "${aws_nat_gateway.nat.id}"
   }
 }
 
