@@ -1,0 +1,9 @@
+network-properties:
+  network:
+    name: pas
+  other_availability_zones:
+    {{range .azs}}
+    - name: {{.}}
+    {{end}}
+  singleton_availability_zone:
+    name: {{index .azs 0}}

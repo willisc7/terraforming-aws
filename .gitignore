@@ -8,6 +8,4 @@
 *.pem
 *.pivotal
 *stemcell*.tgz
-terraforming-pks/pks-config.yml
-terraforming-pas/srt-config.yml
-terraforming-pas/p-healthwatch-config.yml
+*.generated.yml

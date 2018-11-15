@@ -22,23 +22,49 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
 export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME=admin
 export OM_PASSWORD=${OM_PASSWORD} # Change this to your password.
+
+# Download your products -- Small Footprint, Healthwatch, and SSO
 pivnet dlpf -p elastic-runtime -r $(pivnet releases -p elastic-runtime --format json | jq -r -c '[.[] | select(.availability | startswith("All User")) | .version][0]') -g 'srt*.pivotal' --accept-eula
 pivnet dlpf -p p-healthwatch -r $(pivnet releases -p p-healthwatch --format json | jq -r -c '[.[] | select(.availability | startswith("All User")) | .version][0]') -g '*.pivotal' --accept-eula
+pivnet dlpf -p pivotal_single_sign-on_service -r $(pivnet releases -p pivotal_single_sign-on_service --format json | jq -r -c '[.[] | select(.availability | startswith("All User")) | .version][0]') -g '*.pivotal' --accept-eula
+
+
+# Check to make sure we have the right stemcells for those products.
 export STEMCELL_VERSION=$(unzip -p p-healthwatch*.pivotal 'metadata/*.yml' | yq -c -r '.stemcell_criteria.version')
-export STEMCELL_RELEASE=$(pivnet releases -p stemcells --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
-pivnet dlpf -p stemcells -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
-om -k upload-stemcell --stemcell $(ls -1 *.tgz)
+export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
+pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
+om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
+
+export STEMCELL_VERSION=$(unzip -p Pivotal_Single_Sign-On_Service*.pivotal 'metadata/*.yml' | yq -c -r '.stemcell_criteria.version')
+export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
+pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
+om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
+
+# Upload products
 om -k upload-product --product $(ls -1 srt*.pivotal)
 om -k upload-product --product $(ls -1 p-healthwatch*.pivotal)
+om -k upload-product --product $(ls -1 Pivotal_Single_Sign-On_Service*.pivotal)
+
+# Stage products
 om -k stage-product --product-name cf --product-version $(unzip -p srt*.pivotal 'metadata/*.yml' | yq -c -r '.product_version')
 om -k stage-product --product-name p-healthwatch --product-version $(unzip -p p-healthwatch*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
-texplate execute ../ci/assets/template/srt-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > srt-config.yml
-texplate execute ../ci/assets/template/p-healthwatch-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > p-healthwatch-config.yml
-om -k configure-product -n cf -c srt-config.yml
-om -k configure-product -n p-healthwatch -c p-healthwatch-config.yml
+om -k stage-product --product-name Pivotal_Single_Sign-On_Service --product-version $(unzip -p Pivotal_Single_Sign-On_Service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
+
+# Configure products
+texplate execute ../ci/assets/template/srt-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > srt-config.generated.yml
+om -k configure-product -n cf -c srt-config.generated.yml
+
+texplate execute ../ci/assets/template/p-healthwatch-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > p-healthwatch-config.generated.yml
+om -k configure-product -n p-healthwatch -c p-healthwatch-config.generated.yml
+
+texplate execute ../ci/assets/template/Pivotal_Single_Sign-On_Service.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > Pivotal_Single_Sign-On_Service.generated.yml
+om -k configure-product -n Pivotal_Single_Sign-On_Service -c Pivotal_Single_Sign-On_Service.generated.yml
+
+# Lastly, apply changes.
 om -k apply-changes -i
-export PKS_USER=admin
-export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/pivotal-container-service-54233ccfafc7e8775e8f/credentials/.properties.uaa_admin_password | jq -r -c ".credential.value.secret")
+
+export PAS_USER=admin
+export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/cf-e7239061b8b89610b55b/credentials/.uaa.admin_credentials | jq -r -c ".credential.value.password")
 export PKS_ENDPOINT=$(terraform output pks_api_endpoint)
 cf login -a ${PKS_ENDPOINT} -u ${PKS_USER} -p ${PKS_PASSWORD} -k
 ```
