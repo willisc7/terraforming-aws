@@ -68,3 +68,5 @@ resource-config:
   pivotal-container-service:
     elb_names:
     - {{.pks_load_balancer_name}}
+    additional_vm_extensions:
+    - pks-api-lb-security-group

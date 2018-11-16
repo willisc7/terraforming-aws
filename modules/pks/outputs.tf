@@ -1,5 +1,5 @@
 output "load_balancer_name" {
-  value = "${aws_elb.pks_api_elb.name}"
+  value = "${aws_lb.pks_api.name}"
 }
 
 output "pks_subnet_ids" {

@@ -18,7 +18,7 @@ om -k stage-product --product-name pivotal-container-service --product-version $
 om -k configure-product -n pivotal-container-service -c <(texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 om -k apply-changes
 export PKS_USER=admin
-export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/pivotal-container-service-54233ccfafc7e8775e8f/credentials/.properties.uaa_admin_password | jq -r -c ".credential.value.secret")
+export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/$(om curl --silent --path /api/v0/deployed/products | jq -r -c ".[1].guid")/credentials/.properties.uaa_admin_password | jq -r -c ".credential.value.secret")
 export PKS_ENDPOINT=$(terraform output pks_api_endpoint)
 pks login -a ${PKS_ENDPOINT} -u ${PKS_USER} -p ${PKS_PASSWORD} -k
 ```

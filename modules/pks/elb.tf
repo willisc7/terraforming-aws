@@ -1,7 +1,7 @@
 // Allow access to PKS API
-resource "aws_security_group" "pks_api_elb_security_group" {
-  name        = "pks_api_elb_security_group"
-  description = "PKS API ELB Security Group"
+resource "aws_security_group" "pks_api_lb_security_group" {
+  name        = "pks_api_lb_security_group"
+  description = "PKS API LB Security Group"
   vpc_id      = "${var.vpc_id}"
 
   ingress {
@@ -25,37 +25,57 @@ resource "aws_security_group" "pks_api_elb_security_group" {
     to_port     = 0
   }
 
-  tags = "${merge(var.tags, map("Name", "${var.env_name}-pks-api-elb-security-group"))}"
+  tags = "${merge(var.tags, map("Name", "${var.env_name}-pks-api-lb-security-group"))}"
 }
 
-resource "aws_elb" "pks_api_elb" {
-  name                      = "${var.env_name}-pks-api"
-  cross_zone_load_balancing = true
+resource "aws_lb" "pks_api" {
+  name                             = "${var.env_name}-pks-api"
+  load_balancer_type               = "network"
+  enable_cross_zone_load_balancing = true
+  internal                         = false
+  subnets                          = ["${var.public_subnet_ids}"]
+}
+
+resource "aws_lb_listener" "pks_api_9021" {
+  load_balancer_arn = "${aws_lb.pks_api.arn}"
+  port              = 9021
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = "${aws_lb_target_group.pks_api_9021.arn}"
+  }
+}
+
+resource "aws_lb_target_group" "pks_api_9021" {
+  name     = "${var.env_name}-pks-api-tg-9021"
+  port     = 9021
+  protocol = "TCP"
+  vpc_id   = "${var.vpc_id}"
 
   health_check {
-    healthy_threshold   = 6
-    unhealthy_threshold = 3
-    interval            = 5
-    target              = "TCP:9021"
-    timeout             = 3
+    protocol = "TCP"
   }
+}
 
-  idle_timeout = 3600
+resource "aws_lb_listener" "pks_api_8443" {
+  load_balancer_arn = "${aws_lb.pks_api.arn}"
+  port              = 8443
+  protocol          = "TCP"
 
-  listener {
-    instance_port     = 9021
-    instance_protocol = "tcp"
-    lb_port           = 9021
-    lb_protocol       = "tcp"
+  default_action {
+    type             = "forward"
+    target_group_arn = "${aws_lb_target_group.pks_api_8443.arn}"
   }
+}
 
-  listener {
-    instance_port      = 8443
-    instance_protocol  = "tcp"
-    lb_port            = 8443
-    lb_protocol        = "tcp"
+resource "aws_lb_target_group" "pks_api_8443" {
+  name     = "${var.env_name}-pks-api-tg-8443"
+  port     = 8443
+  protocol = "TCP"
+  vpc_id   = "${var.vpc_id}"
+
+  health_check {
+    protocol = "TCP"
   }
-
-  security_groups = ["${aws_security_group.pks_api_elb_security_group.id}"]
-  subnets         = ["${var.public_subnet_ids}"]
 }
