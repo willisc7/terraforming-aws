@@ -7,13 +7,15 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
 1. Download PKS, upload PKS tile to Ops Manager, stage PKS, configure PKS, and login to the `pks` cli.
 
 ```
-export PRODUCT_NAME=pivotal-container-service
-export PRODUCT_VERSION=$(pivnet releases -p ${PRODUCT_NAME} --format json | jq -r -c ".[0].version")
-pivnet dlpf -p ${PRODUCT_NAME} -r ${PRODUCT_VERSION} -g '*.pivotal'
-om -k upload-product --product *.pivotal
-om -k stage-product --product-name ${PRODUCT_NAME} --product-version ${PRODUCT_VERSION} # This step fails because the tile version is not the same as the pivnet version
-texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > pks-config.yml
-om -k configure-product -n pivotal-container-service -c pks-config.yml
+
+export OM_TARGET="https://$(terraform output ops_manager_dns)"
+export OM_USERNAME=admin
+export OM_PASSWORD=${OM_PASSWORD} # Change this to your password.
+
+pivnet dlpf -p pivotal-container-service -r $(pivnet releases -p pivotal-container-service --format json | jq -r -c ".[0].version") -g '*.pivotal'
+om -k upload-product --product $(ls -1 *.pivotal)
+om -k stage-product --product-name pivotal-container-service --product-version $(unzip -p pivotal-container-service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
+om -k configure-product -n pivotal-container-service -c <(texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 om -k apply-changes
 export PKS_USER=admin
 export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/pivotal-container-service-54233ccfafc7e8775e8f/credentials/.properties.uaa_admin_password | jq -r -c ".credential.value.secret")
