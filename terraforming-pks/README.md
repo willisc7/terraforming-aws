@@ -27,10 +27,10 @@ pks login -a ${PKS_ENDPOINT} -u ${PKS_USER} -p ${PKS_PASSWORD} -k
 1. Create a new cluster:
 
 ```
-export CLUSTER_NAME=dev
-export CLUSTER_HOST=dev.example.com
+export CLUSTER_NAME="a"
+export CLUSTER_HOST="a.$(terraform output pks_domain)"
 pks create-cluster ${CLUSTER_NAME} -e ${CLUSTER_HOST} --plan medium
-pks get-credentials dev
+pks get-credentials a
 ```
 
 Once the cluster is completed, you will probably want to add a load balancer to access the API with `kubectl`, to do that see: [terraforming-k8s](../terraforming-k8s/README.md).
