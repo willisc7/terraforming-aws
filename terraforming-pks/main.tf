@@ -32,6 +32,8 @@ module "infra" {
   dns_suffix         = "${var.dns_suffix}"
 
   tags               = "${local.actual_tags}"
+
+  cluster_name       = "${var.cluster_name}"
 }
 
 module "ops_manager" {
@@ -85,6 +87,8 @@ module "pks" {
   dns_suffix                   = "${var.dns_suffix}"
 
   tags                         = "${local.actual_tags}"
+
+  cluster_name                 = "${var.cluster_name}"
 }
 
 module "rds" {

@@ -49,6 +49,11 @@ variable "nat_ami_map" {
   }
 }
 
+variable "cluster_name" {
+  type    = "string"
+  default = ""
+}
+
 locals {
   infrastructure_cidr = "${cidrsubnet(var.vpc_cidr, 10, 64)}"
   public_cidr         = "${cidrsubnet(var.vpc_cidr, 6, 0)}"

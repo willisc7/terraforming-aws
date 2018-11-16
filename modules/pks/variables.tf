@@ -42,3 +42,8 @@ locals {
   pks_cidr          = "${cidrsubnet(var.vpc_cidr, 6, 1)}"
   pks_services_cidr = "${cidrsubnet(var.vpc_cidr, 6, 2)}"
 }
+
+variable "cluster_name" {
+  type    = "string"
+  default = ""
+}
