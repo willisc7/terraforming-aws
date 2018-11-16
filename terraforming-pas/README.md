@@ -51,14 +51,11 @@ om -k stage-product --product-name p-healthwatch --product-version $(unzip -p p-
 om -k stage-product --product-name Pivotal_Single_Sign-On_Service --product-version $(unzip -p Pivotal_Single_Sign-On_Service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
 
 # Configure products
-texplate execute ../ci/assets/template/srt-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > srt-config.generated.yml
-om -k configure-product -n cf -c srt-config.generated.yml
+om -k configure-product -n cf -c <(texplate execute ../ci/assets/template/srt-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 
-texplate execute ../ci/assets/template/p-healthwatch-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > p-healthwatch-config.generated.yml
-om -k configure-product -n p-healthwatch -c p-healthwatch-config.generated.yml
+om -k configure-product -n p-healthwatch -c <(texplate execute ../ci/assets/template/p-healthwatch-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 
-texplate execute ../ci/assets/template/Pivotal_Single_Sign-On_Service.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml > Pivotal_Single_Sign-On_Service.generated.yml
-om -k configure-product -n Pivotal_Single_Sign-On_Service -c Pivotal_Single_Sign-On_Service.generated.yml
+om -k configure-product -n Pivotal_Single_Sign-On_Service -c <(texplate execute ../ci/assets/template/Pivotal_Single_Sign-On_Service.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 
 # Lastly, apply changes.
 om -k apply-changes -i
