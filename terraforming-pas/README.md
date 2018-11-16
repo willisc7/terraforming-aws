@@ -45,6 +45,12 @@ om -k upload-product --product $(ls -1 srt*.pivotal)
 om -k upload-product --product $(ls -1 p-healthwatch*.pivotal)
 om -k upload-product --product $(ls -1 Pivotal_Single_Sign-On_Service*.pivotal)
 
+# Add custom VM extensions for Network Load Balancers
+om -k curl --path /api/v0/staged/vm_extensions/web-lb-security-group -x PUT -d '{"name": "web-lb-security-group", "cloud_properties": { "security_groups": ["web_lb_security_group"] }}'
+om -k curl --path /api/v0/staged/vm_extensions/ssh-lb-security-group -x PUT -d '{"name": "ssh-lb-security-group", "cloud_properties": { "security_groups": ["ssh_lb_security_group"] }}'
+om -k curl --path /api/v0/staged/vm_extensions/tcp-lb-security-group -x PUT -d '{"name": "tcp-lb-security-group", "cloud_properties": { "security_groups": ["tcp_lb_security_group"] }}'
+om -k curl --path /api/v0/staged/vm_extensions/vms -x PUT -d '{"name": "vms", "cloud_properties": { "security_groups": ["vms_security_group"] }}'
+
 # Stage products
 om -k stage-product --product-name cf --product-version $(unzip -p srt*.pivotal 'metadata/*.yml' | yq -c -r '.product_version')
 om -k stage-product --product-name p-healthwatch --product-version $(unzip -p p-healthwatch*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 

@@ -176,6 +176,10 @@ jobs:
       params:
         IAAS_TYPE: aws
         PIVNET_TOKEN: ((pivnet_token))
+    - task: custom-vm-extensions
+      file: terraforming/ci/tasks/custom-vm-extensions.yml
+      params:
+        <<: *om-creds
     - task: upload-configure-stage-pks
       file: ci/scripts/terraforming/upload-configure-stage/task.yml
       params:

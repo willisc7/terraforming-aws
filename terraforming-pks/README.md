@@ -15,6 +15,7 @@ export OM_PASSWORD=${OM_PASSWORD} # Change this to your password.
 pivnet dlpf -p pivotal-container-service -r $(pivnet releases -p pivotal-container-service --format json | jq -r -c ".[0].version") -g '*.pivotal'
 om -k upload-product --product $(ls -1 *.pivotal)
 om -k stage-product --product-name pivotal-container-service --product-version $(unzip -p pivotal-container-service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
+om -k curl --path /api/v0/staged/vm_extensions/pks-api-lb-security-group -x PUT -d '{"name": "pks-api-lb-security-group", "cloud_properties": { "security_groups": ["pks_api_lb_security_group"] }}'
 om -k configure-product -n pivotal-container-service -c <(texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 om -k apply-changes
 export PKS_USER=admin
