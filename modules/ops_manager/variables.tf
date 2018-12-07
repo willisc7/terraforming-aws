@@ -1,10 +1,10 @@
-variable "count" {}
-
 variable "region" {
   type = "string"
 }
 
 variable "optional_count" {}
+
+variable "vm_count" {}
 
 variable "private" {}
 

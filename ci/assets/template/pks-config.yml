@@ -71,4 +71,4 @@ resource-config:
     - alb:{{.}}
     {{end}}
     additional_vm_extensions:
-    - pks-api-lb-security-group
+    - pks-api-lb-security-groups
