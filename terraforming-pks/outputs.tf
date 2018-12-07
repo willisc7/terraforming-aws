@@ -6,10 +6,6 @@ output "ops_manager_bucket" {
   value = "${module.ops_manager.bucket}"
 }
 
-output "pks_api_target_groups" {
-  value = "${module.pks.pks_api_target_groups}"
-}
-
 output "ops_manager_public_ip" {
   value = "${module.ops_manager.public_ip}"
 }
