@@ -5,10 +5,9 @@ output "load_balancer_name" {
 output "pks_api_target_groups" {
   value = [
     "${aws_lb_target_group.pks_api_9021.name}",
-    "${aws_lb_target_group.pks_api_8443.name}"
+    "${aws_lb_target_group.pks_api_8443.name}",
   ]
 }
-
 
 output "pks_subnet_ids" {
   value = ["${aws_subnet.pks_subnets.*.id}"]

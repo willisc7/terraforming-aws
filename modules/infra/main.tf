@@ -51,8 +51,8 @@ resource "aws_security_group" "nat_security_group" {
 }
 
 resource "aws_nat_gateway" "nat" {
-  allocation_id          = "${aws_eip.nat_eip.id}"
-  subnet_id              = "${element(aws_subnet.public_subnets.*.id, 0)}"
+  allocation_id = "${aws_eip.nat_eip.id}"
+  subnet_id     = "${element(aws_subnet.public_subnets.*.id, 0)}"
 
   tags = "${merge(var.tags, map("Name", "${var.env_name}-nat"))}"
 

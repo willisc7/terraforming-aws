@@ -11,7 +11,7 @@ terraform {
 resource "aws_security_group" "k8s_api_security" {
   name        = "k8s-api-${var.cluster_name}-allow-all-${data.terraform_remote_state.pks.vpc_id}"
   description = "Allow all inbound traffic to k8s masters for ${var.cluster_name} API server"
-  vpc_id = "${data.terraform_remote_state.pks.vpc_id}"
+  vpc_id      = "${data.terraform_remote_state.pks.vpc_id}"
 
   ingress {
     from_port   = 8443
@@ -47,17 +47,16 @@ resource "aws_elb" "k8s_api" {
   idle_timeout = 3600
 
   listener {
-    instance_port      = 8443
-    instance_protocol  = "tcp"
-    lb_port            = 8443
-    lb_protocol        = "tcp"
+    instance_port     = 8443
+    instance_protocol = "tcp"
+    lb_port           = 8443
+    lb_protocol       = "tcp"
   }
 
-  tags = "${data.terraform_remote_state.pks.tags}"
+  tags            = "${data.terraform_remote_state.pks.tags}"
   security_groups = ["${aws_security_group.k8s_api_security.id}"]
-  subnets = ["${data.terraform_remote_state.pks.public_subnets}"]
+  subnets         = ["${data.terraform_remote_state.pks.public_subnets}"]
 }
-
 
 resource "aws_route53_record" "pks_api_dns" {
   zone_id = "${data.terraform_remote_state.pks.dns_zone_id}"

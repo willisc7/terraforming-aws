@@ -9,6 +9,7 @@ output "cluster_name" {
 output "instances" {
   value = "${var.instances}"
 }
+
 output "region" {
   value = "${var.region}"
 }

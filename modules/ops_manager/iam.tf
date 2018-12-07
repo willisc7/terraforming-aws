@@ -13,11 +13,12 @@ data "aws_iam_policy_document" "ops_manager" {
   source_json = "${data.template_file.ops_manager.rendered}"
 
   statement {
-    sid = "AllowToCreateInstanceWithCurrentInstanceProfile"
-    effect = "Allow"
+    sid     = "AllowToCreateInstanceWithCurrentInstanceProfile"
+    effect  = "Allow"
     actions = ["iam:PassRole"]
+
     resources = [
-      "${compact(concat(list(aws_iam_role.ops_manager.arn), var.additional_iam_roles_arn))}"
+      "${compact(concat(list(aws_iam_role.ops_manager.arn), var.additional_iam_roles_arn))}",
     ]
   }
 }
