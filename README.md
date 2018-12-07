@@ -8,7 +8,7 @@ Set of terraform modules for deploying Ops Manager, PAS and PKS infrastructure r
 - A RDS instance (optional)
 - A Virtual Private Network (VPC), subnets, Security Groups
 - Necessary s3 buckets
-- A NAT Box
+- NAT Gateway services
 - Network Load Balancers
 - An IAM User with proper permissions
 - Tagged resources
