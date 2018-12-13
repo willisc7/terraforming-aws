@@ -62,6 +62,11 @@ resource "aws_subnet" "public_subnets" {
       map("kubernetes.io/role/elb", "1"), 
       map("kubernetes.io/cluster/${var.cluster_name}", "shared"), 
       map("SubnetType", "Utility"))}"
+
+  # Ignore additional tags that are added for specifying clusters.
+  lifecycle {
+    ignore_changes = ["tags.%", "tags.kubernetes"]
+  }
 }
 
 resource "aws_route_table_association" "route_public_subnets" {

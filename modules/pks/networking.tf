@@ -35,6 +35,11 @@ resource "aws_subnet" "services_subnets" {
       map("kubernetes.io/role/internal-elb", "1"), 
       map("kubernetes.io/cluster/${var.cluster_name}", "shared"), 
       map("SubnetType", "Private"))}"
+
+  # Ignore additional tags that are added for specifying clusters.
+  lifecycle {
+    ignore_changes = ["tags.%", "tags.kubernetes"]
+  }
 }
 
 data "template_file" "services_subnet_gateways" {
