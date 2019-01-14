@@ -17,12 +17,14 @@ Note: This is not an exhaustive list of resources created, this will vary depend
 
 ## Prerequisites
 
+### Terraform CLI
+
 ```bash
 brew update
 brew install terraform
 ```
 
-## AWS Permissions
+### AWS Permissions
 - AmazonEC2FullAccess
 - AmazonRDSFullAccess
 - AmazonRoute53FullAccess
@@ -52,7 +54,7 @@ Note: You will also need to create a custom policy as the following and add to
 
 ## Deploying Ops Manager and Configuring the BOSH Director
 
-Depending if you're deploying PAS or PKS you need to perform the following steps:
+First, you'll need to clone this repo. Then, depending on if you're deploying PAS or PKS you need to perform the following steps:
 
 1. `cd` into the proper directory:
     - [terraforming-pas/](terraforming-pas/)
@@ -62,7 +64,7 @@ Depending if you're deploying PAS or PKS you need to perform the following steps
   ```bash
   terraform init
   terraform plan -out=pcf.tfplan
-  terraform apply plan
+  terraform apply pcf.tfplan
   ```
 1. Set the login and password for Opsman and configure the AWS BOSH Director:
   ```

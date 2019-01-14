@@ -10,3 +10,4 @@
 *stemcell*.tgz
 *.generated.yml
 OpsManager*onAWS.yml
+om.key
