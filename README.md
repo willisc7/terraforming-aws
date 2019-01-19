@@ -69,6 +69,8 @@ First, you'll need to clone this repo. Then, depending on if you're deploying PA
 1. Set the login and password for Opsman and configure the AWS BOSH Director:
   ```
   PROJECT_DIR=$(dirname $PWD) ../scripts/configure-director ${PWD##*/} ${OM_PASSWORD}
+  # Optionally run the next line to go ahead and deploy the BOSH Director
+  # om -k apply-changes
   ```
 1. For next steps on some products, see here:
   * PAS: [terraforming-pas](./terraforming-pas/README.md)

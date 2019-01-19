@@ -30,12 +30,12 @@ pivnet dlpf -p pivotal_single_sign-on_service -r $(pivnet releases -p pivotal_si
 
 
 # Check to make sure we have the right stemcells for those products.
-export STEMCELL_VERSION=$(unzip -p p-healthwatch*.pivotal 'metadata/*.yml' | yq -c -r '.stemcell_criteria.version')
+export STEMCELL_VERSION=$(unzip -p p-healthwatch*.pivotal 'metadata/*.yml' | yq r - 'stemcell_criteria.version')
 export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
 pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
 om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
 
-export STEMCELL_VERSION=$(unzip -p Pivotal_Single_Sign-On_Service*.pivotal 'metadata/*.yml' | yq -c -r '.stemcell_criteria.version')
+export STEMCELL_VERSION=$(unzip -p Pivotal_Single_Sign-On_Service*.pivotal 'metadata/*.yml' | yq r - 'stemcell_criteria.version')
 export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
 pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
 om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
@@ -52,9 +52,9 @@ om -k curl --path /api/v0/staged/vm_extensions/tcp-lb-security-group -x PUT -d '
 om -k curl --path /api/v0/staged/vm_extensions/vms -x PUT -d '{"name": "vms", "cloud_properties": { "security_groups": ["vms_security_group"] }}'
 
 # Stage products
-om -k stage-product --product-name cf --product-version $(unzip -p srt*.pivotal 'metadata/*.yml' | yq -c -r '.product_version')
-om -k stage-product --product-name p-healthwatch --product-version $(unzip -p p-healthwatch*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
-om -k stage-product --product-name Pivotal_Single_Sign-On_Service --product-version $(unzip -p Pivotal_Single_Sign-On_Service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
+om -k stage-product --product-name cf --product-version $(unzip -p srt*.pivotal 'metadata/*.yml' | yq r - 'product_version')
+om -k stage-product --product-name p-healthwatch --product-version $(unzip -p p-healthwatch*.pivotal 'metadata/*.yml' | yq r - 'product_version') 
+om -k stage-product --product-name Pivotal_Single_Sign-On_Service --product-version $(unzip -p Pivotal_Single_Sign-On_Service*.pivotal 'metadata/*.yml' | yq r - 'product_version') 
 
 # Configure products
 om -k configure-product -n cf -c <(texplate execute ../ci/assets/template/srt-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
