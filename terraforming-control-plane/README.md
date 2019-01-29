@@ -36,11 +36,15 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
     export STEMCELL_VERSION=170.24
     export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
     pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
+    om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
+
+    # Push that stemcell over to the bosh director.
+    om -k apply-changes -i
 
     ../scripts/ssh $PWD
     ```
 1. Follow directions at https://control-plane-docs.cfapps.io/#login-to-control-plane
-1. I applied the following patch to the downloaded yml manifest:
+1. I applied the following patch to the downloaded yml manifest -- **NOTE: If you're going to continue using self-signed certificates, keep the portion at the end; just make sure to change the `alternative_names` to your `external_url` value.**:
     ```diff
     @@ -12,7 +12,7 @@
                 tls:
@@ -130,7 +134,7 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
     -      common_name: 127.0.0.1
     -    type: certificate
     ```
-1. Create a `secrets.yml` file that you'll use to keep your SSL certs inside, it looks like below.  In my case, I used [Let's Encrypt](https://letsencrypt.org/) so the contents of `control_plane_internal_ca.certificate` would be [Let’s Encrypt Authority X3 (Signed by ISRG Root X1)](https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt).
+1. Create a `secrets.yml` file that you'll use to keep your SSL certs inside, it looks like below.  In my case, I used [Let's Encrypt](https://letsencrypt.org/) so the contents of `control_plane_internal_ca.certificate` would be [Let’s Encrypt Authority X3 (Signed by ISRG Root X1)](https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt).  **If you're using self-signed certificates leave this part off.**
     ```
     control_plane_tls:
       certificate: |
