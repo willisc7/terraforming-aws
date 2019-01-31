@@ -21,6 +21,10 @@ variable "vpc_cidr" {
 * PAS *
 *******/
 
+variable "internetless" {
+  default = false
+}
+
 variable "create_versioned_pas_buckets" {
   default = false
 }
