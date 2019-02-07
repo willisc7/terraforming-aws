@@ -93,8 +93,3 @@ resource-configuration:
   compilation:
     instance_type:
       id: c4.xlarge
-{{if index . "ssl_cert"}}
-security-configuration:
-  trusted_certificates: |
-{{indent 4 .ssl_cert}}
-{{end}}
