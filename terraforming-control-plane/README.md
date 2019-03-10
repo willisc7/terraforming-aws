@@ -48,7 +48,7 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
     ```diff
     @@ -2,6 +2,7 @@
     instance_groups:
-    - azs: ((azs))
+     - azs: ((azs))
       instances: 1
     +  vm_extensions: [control-plane-lb-cloud-properties]
       jobs:
