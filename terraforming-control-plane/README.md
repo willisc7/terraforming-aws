@@ -2,7 +2,7 @@
 
 This creates an environment for running [Concourse](concourse.io) to then run [Platform Automation](http://docs.pivotal.io/pcf-automation/) to create your PAS or PKS environments.
 
-## Configuring Control PLane
+## Configuring Control Plane
 
 ### Prerequisites
 
@@ -46,93 +46,60 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
 1. Follow directions at https://control-plane-docs.cfapps.io/#login-to-control-plane
 1. I applied the following patch to the downloaded yml manifest -- **NOTE: If you're going to continue using self-signed certificates, keep the portion at the end; just make sure to change the `alternative_names` to your `external_url` value.**:
     ```diff
-    @@ -12,7 +12,7 @@
-                tls:
-                  ca_cert:
-                    certificate: ((control_plane_internal_ca.certificate))
-    -            url: https://127.0.0.1:8844
-    +            url: ((external_url)):8844
-              external_url: ((external_url))
-              generic_oauth:
-                auth_url: ((external_url)):8443/oauth/authorize
-    @@ -21,8 +21,8 @@
-                client_id: concourse
-                client_secret: ((concourse_client_secret))
-                display_name: UAA
-    -            token_url: https://localhost:8443/oauth/token
-    -            userinfo_url: https://localhost:8443/userinfo
-    +            token_url: ((external_url)):8443/oauth/token
-    +            userinfo_url: ((external_url)):8443/userinfo
-              log_level: debug
-              main_team:
-                auth:
-    @@ -60,8 +60,16 @@
-                  uaa:
-                    ca_certs:
-                      - ((control_plane_internal_ca.certificate))
-    -                internal_url: https://localhost:8443
-    -                url: https://plane.infra:8443
-    +                url: ((external_url)):8443
-    +                verification_key: ((uaa_jwt.public_key))
-    +            authorization:
-    +              permissions:
-    +                - path: /*
-    +                  actors: ["uaa-client:credhub_admin_client"]
-    +                  operations: [read, write, delete, read_acl, write_acl]
-    +                - path: /concourse/*
-    +                  actors: ["uaa-client:concourse_to_credhub"]
-    +                  operations: [read]
-                ca_certificate: ((control_plane_internal_ca.certificate))
-                data_storage:
-                  database: credhub
-    @@ -130,6 +138,13 @@
-                    refresh-token-validity: 3600
-                    scope: credhub.read,credhub.write
-                    secret: ""
-    +              credhub_admin_client:
-    +                override: true
-    +                authorized-grant-types: client_credentials
-    +                scope: uaa.none
-    +                authorities: credhub.read,credhub.write
-    +                access-token-validity: 3600
-    +                secret: ((credhub-admin-client-password))
-                jwt:
-                  policy:
-                    active_key_id: key-1
-    @@ -181,6 +196,7 @@
-        update:
-          max_in_flight: 1
-        vm_type: ((vm_type))
-    +    vm_extensions: [control-plane-lb-cloud-properties]
-      - azs: ((azs))
-        instances: 1
-        jobs:
-    @@ -295,6 +311,8 @@
-        options:
-          length: 40
-        type: password
-    +  - name: credhub-admin-client-password
-    +    type: password
-      - name: postgres_password
-        type: password
-      - name: token_signing_key
-    @@ -317,16 +335,3 @@
-        type: password
-      - name: worker_key
-        type: ssh
-    -  - name: control_plane_internal_ca
-    -    options:
-    -      common_name: internalCA
-    -      is_ca: true
-    -    type: certificate
-    -  - name: control_plane_tls
-    -    options:
-    -      alternative_names:
-    -        - 127.0.0.1
-    -        - localhost
-    -      ca: control_plane_internal_ca
-    -      common_name: 127.0.0.1
-    -    type: certificate
+    @@ -2,6 +2,7 @@
+    instance_groups:
+    - azs: ((azs))
+      instances: 1
+    +  vm_extensions: [control-plane-lb-cloud-properties]
+      jobs:
+      - consumes: {}
+        name: atc
+    @@ -13,7 +14,7 @@
+            tls:
+              ca_cert:
+                certificate: ((control_plane_internal_ca.certificate))
+    -        url: https://127.0.0.1:8844
+    +        url: ((external_url)):8844
+          external_url: ((external_url))
+          generic_oauth:
+            auth_url: ((external_url)):8443/oauth/authorize
+    @@ -22,8 +23,8 @@
+            client_id: concourse
+            client_secret: ((concourse_client_secret))
+            display_name: UAA
+    -        token_url: https://localhost:8443/oauth/token
+    -        userinfo_url: https://localhost:8443/userinfo
+    +        token_url: ((external_url)):8443/oauth/token
+    +        userinfo_url: ((external_url)):8443/userinfo
+          log_level: debug
+          main_team:
+            auth:
+    @@ -61,7 +62,7 @@
+              uaa:
+                ca_certs:
+                - ((control_plane_internal_ca.certificate))
+    -            internal_url: https://localhost:8443
+    +            internal_url: ((external_url)):8443
+                url: ((external_url)):8443
+            authorization:
+              permissions:
+    @@ -333,16 +334,3 @@
+      type: password
+    - name: worker_key
+      type: ssh
+    -- name: control_plane_internal_ca
+    -  options:
+    -    common_name: internalCA
+    -    is_ca: true
+    -  type: certificate
+    -- name: control_plane_tls
+    -  options:
+    -    alternative_names:
+    -    - 127.0.0.1
+    -    - localhost
+    -    ca: control_plane_internal_ca
+    -    common_name: 127.0.0.1
+    -  type: certificate
     ```
 1. Create a `secrets.yml` file that you'll use to keep your SSL certs inside, it looks like below.  In my case, I used [Let's Encrypt](https://letsencrypt.org/) so the contents of `control_plane_internal_ca.certificate` would be [Let’s Encrypt Authority X3 (Signed by ISRG Root X1)](https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt).  **If you're using self-signed certificates leave this part off.**
     ```
