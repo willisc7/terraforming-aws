@@ -49,11 +49,11 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
     @@ -2,6 +2,7 @@
     instance_groups:
      - azs: ((azs))
-      instances: 1
+       instances: 1
     +  vm_extensions: [control-plane-lb-cloud-properties]
-      jobs:
-      - consumes: {}
-        name: atc
+       jobs:
+       - consumes: {}
+         name: atc
     @@ -13,7 +14,7 @@
             tls:
               ca_cert:
@@ -84,9 +84,9 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
             authorization:
               permissions:
     @@ -333,16 +334,3 @@
-      type: password
-    - name: worker_key
-      type: ssh
+       type: password
+     - name: worker_key
+       type: ssh
     -- name: control_plane_internal_ca
     -  options:
     -    common_name: internalCA
