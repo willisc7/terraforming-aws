@@ -48,7 +48,6 @@ resource "aws_subnet" "public_subnets" {
 
   tags = "${merge(var.tags, map("Name", "${var.env_name}-public-subnet${count.index}"), 
       map("kubernetes.io/role/elb", "1"), 
-      map("kubernetes.io/cluster/${var.cluster_name}", "shared"), 
       map("SubnetType", "Utility"))}"
 
   # Ignore additional tags that are added for specifying clusters.

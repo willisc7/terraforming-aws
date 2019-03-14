@@ -1,5 +1,21 @@
+provider "aws" {
+  version = "~> 1.60"
+}
+
 terraform {
   required_version = "< 0.12.0"
+}
+
+provider "random" {
+  version = "~> 2.0"
+}
+
+provider "template" {
+  version = "~> 1.0"
+}
+
+provider "tls" {
+  version = "~> 1.2"
 }
 
 locals {
@@ -33,8 +49,6 @@ module "infra" {
   dns_suffix  = "${var.dns_suffix}"
 
   tags = "${local.actual_tags}"
-
-  cluster_name = "${var.cluster_name}"
 }
 
 module "ops_manager" {
@@ -88,8 +102,6 @@ module "pks" {
   dns_suffix = "${var.dns_suffix}"
 
   tags = "${local.actual_tags}"
-
-  cluster_name = "${var.cluster_name}"
 }
 
 module "rds" {

@@ -33,7 +33,6 @@ resource "aws_subnet" "services_subnets" {
 
   tags = "${merge(var.tags, map("Name", "${var.env_name}-pks-services-subnet${count.index}"), 
       map("kubernetes.io/role/internal-elb", "1"), 
-      map("kubernetes.io/cluster/${var.cluster_name}", "shared"), 
       map("SubnetType", "Private"))}"
 
   # Ignore additional tags that are added for specifying clusters.
