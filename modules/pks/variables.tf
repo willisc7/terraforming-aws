@@ -47,8 +47,3 @@ locals {
   pks_cidr = "${module.cidr_lookup.pks_cidr}"
   pks_services_cidr = "${module.cidr_lookup.pks_services_cidr}"
 }
-
-variable "cluster_name" {
-  type    = "string"
-  default = ""
-}
