@@ -33,6 +33,7 @@ module "infra" {
 
   hosted_zone = "${var.hosted_zone}"
   dns_suffix  = "${var.dns_suffix}"
+  use_route53 = "${var.use_route53}"
 
   internetless = false
   tags         = "${local.actual_tags}"
@@ -55,6 +56,7 @@ module "ops_manager" {
   vpc_cidr      = "${var.vpc_cidr}"
   dns_suffix    = "${var.dns_suffix}"
   zone_id       = "${module.infra.zone_id}"
+  use_route53   = "${var.use_route53}"
 
   # additional_iam_roles_arn = ["${module.pas.iam_pas_bucket_role_arn}"]
   bucket_suffix = "${local.bucket_suffix}"
@@ -74,6 +76,7 @@ module "control_plane" {
   region                  = "${var.region}"
   dns_suffix              = "${var.dns_suffix}"
   zone_id                 = "${module.infra.zone_id}"
+  use_route53             = "${var.use_route53}"
 }
 
 module "rds" {

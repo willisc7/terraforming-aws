@@ -16,6 +16,11 @@ variable "hosted_zone" {
   default = ""
 }
 
+variable "use_route53" {
+  default = true
+  description = "Indicate whether or not to enable route53"
+}
+
 /**************
 * Ops Manager *
 ***************/
