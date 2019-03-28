@@ -12,13 +12,9 @@ export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME=admin
 export OM_PASSWORD=${OM_PASSWORD} # Change this to your password.
 
-pivnet dlpf -p pivotal-container-service -r $(pivnet releases -p pivotal-container-service --format json | jq -r -c ".[0].version") -g '*.pivotal'
-om -k upload-product --product $(ls -1 *.pivotal)
-
-export STEMCELL_VERSION=$(unzip -p pivotal-container-service*.pivotal 'metadata/*.yml' | yq r - 'stemcell_criteria.version')
-export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
-pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
-om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
+om download-product --pivnet-api-token $PIVNET_API_TOKEN --stemcell-iaas aws -p pivotal-container-service -f "*.pivotal" -o . -r "^1..*"
+om -k upload-product --product $(ls -1 pivotal-container-service*.pivotal)
+om -k upload-stemcell --stemcell $(ls -1 light-bosh-stemcell*.tgz)
 
 om -k stage-product --product-name pivotal-container-service --product-version $(unzip -p pivotal-container-service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
 om -k curl --path /api/v0/staged/vm_extensions/pks-api-lb-security-group -x PUT -d '{"name": "pks-api-lb-security-group", "cloud_properties": { "security_groups": ["pks_api_lb_security_group"] }}'
