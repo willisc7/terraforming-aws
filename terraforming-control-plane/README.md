@@ -33,7 +33,7 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
     # Downloads all the releases we'll need.
     pivnet dlpf -p p-control-plane-components -r $(pivnet releases -p p-control-plane-components --format json | jq -r -c ".[0].version") -g '*' --accept-eula
 
-    export STEMCELL_VERSION=170.24
+    export STEMCELL_VERSION=250.17
     export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
     pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
     om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
