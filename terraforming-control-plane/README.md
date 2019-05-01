@@ -36,10 +36,10 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
     export STEMCELL_VERSION=250.17
     export STEMCELL_RELEASE=$(pivnet releases -p stemcells-ubuntu-xenial --format json | jq -r -c "[.[] | select(.version | startswith(\"$STEMCELL_VERSION\")) | .version][0]")
     pivnet dlpf -p stemcells-ubuntu-xenial -r $STEMCELL_RELEASE -g '*aws*' --accept-eula
-    om -k upload-stemcell --stemcell $(ls -1 *${STEMCELL_RELEASE}*.tgz)
+    om -k upload-stemcell --stemcell $(ls -1 light-bosh-stemcell-*.tgz)
 
     # Push that stemcell over to the bosh director.
-    om -k apply-changes -i
+    om -k apply-changes
 
     ../scripts/ssh $PWD
     ```
