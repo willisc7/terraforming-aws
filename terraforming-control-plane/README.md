@@ -48,69 +48,39 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
     ```diff
     @@ -2,6 +2,7 @@
     instance_groups:
-     - azs: ((azs))
-       instances: 1
+    - azs: ((azs))
+    instances: 1
     +  vm_extensions: [control-plane-lb-cloud-properties]
-       jobs:
-       - consumes: {}
-         name: atc
-    @@ -13,7 +14,7 @@
-            tls:
-              ca_cert:
-                certificate: ((control_plane_internal_ca.certificate))
-    -        url: https://127.0.0.1:8844
-    +        url: ((external_url)):8844
-          external_url: ((external_url))
-          generic_oauth:
-            auth_url: ((external_url)):8443/oauth/authorize
-    @@ -22,8 +23,8 @@
-            client_id: concourse
-            client_secret: ((concourse_client_secret))
-            display_name: UAA
-    -        token_url: https://localhost:8443/oauth/token
-    -        userinfo_url: https://localhost:8443/userinfo
-    +        token_url: ((external_url)):8443/oauth/token
-    +        userinfo_url: ((external_url)):8443/userinfo
-          log_level: debug
-          main_team:
-            auth:
-    @@ -61,7 +62,7 @@
-              uaa:
-                ca_certs:
-                - ((control_plane_internal_ca.certificate))
-    -            internal_url: https://localhost:8443
-    +            internal_url: ((external_url)):8443
-                url: ((external_url)):8443
-            authorization:
-              permissions:
-    @@ -333,16 +334,3 @@
-       type: password
-     - name: worker_key
-       type: ssh
-    -- name: control_plane_internal_ca
+    jobs:
+    - consumes: {}
+        name: atc
+    @@ -331,15 +332,3 @@
+    type: password
+    - name: worker_key
+    type: ssh
+    -- name: control-plane-ca
     -  options:
-    -    common_name: internalCA
+    -    common_name: controlplaneca
     -    is_ca: true
     -  type: certificate
-    -- name: control_plane_tls
+    -- name: control-plane-tls
     -  options:
     -    alternative_names:
-    -    - 127.0.0.1
-    -    - localhost
-    -    ca: control_plane_internal_ca
-    -    common_name: 127.0.0.1
+    -    - ((wildcard_domain))
+    -    ca: control-plane-ca
+    -    common_name: control-plane-tls
     -  type: certificate
     ```
 1. Create a `secrets.yml` file that you'll use to keep your SSL certs inside, it looks like below.  In my case, I used [Let's Encrypt](https://letsencrypt.org/) so the contents of `control_plane_internal_ca.certificate` would be [Let’s Encrypt Authority X3 (Signed by ISRG Root X1)](https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt).  **If you're using self-signed certificates leave this part off.**
     ```
-    control_plane_tls:
+    control-plane-tls:
       certificate: |
         -----BEGIN CERTIFICATE-----
         -----END CERTIFICATE-----
       private_key: |
         -----BEGIN RSA PRIVATE KEY-----
         -----END RSA PRIVATE KEY-----
-    control_plane_internal_ca:
+    control-plane-ca:
       certificate: |
         -----BEGIN CERTIFICATE-----
         -----END CERTIFICATE-----
