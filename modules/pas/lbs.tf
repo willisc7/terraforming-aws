@@ -84,6 +84,7 @@ resource "aws_lb_target_group" "web_443" {
 # SSH Load Balancer
 
 resource "aws_security_group" "ssh_lb" {
+  count       = "${var.use_ssh_routes ? 1 : 0}"
   name        = "ssh_lb_security_group"
   description = "Load Balancer SSH Security Group"
   vpc_id      = "${var.vpc_id}"
@@ -106,6 +107,7 @@ resource "aws_security_group" "ssh_lb" {
 }
 
 resource "aws_lb" "ssh" {
+  count                            = "${var.use_ssh_routes ? 1 : 0}"
   name                             = "${var.env_name}-ssh-lb"
   load_balancer_type               = "network"
   enable_cross_zone_load_balancing = true
@@ -114,6 +116,7 @@ resource "aws_lb" "ssh" {
 }
 
 resource "aws_lb_listener" "ssh" {
+  count             = "${var.use_ssh_routes ? 1 : 0}"
   load_balancer_arn = "${aws_lb.ssh.arn}"
   port              = 2222
   protocol          = "TCP"
@@ -125,6 +128,7 @@ resource "aws_lb_listener" "ssh" {
 }
 
 resource "aws_lb_target_group" "ssh" {
+  count    = "${var.use_ssh_routes ? 1 :0}"
   name     = "${var.env_name}-ssh-tg"
   port     = 2222
   protocol = "TCP"
@@ -138,10 +142,11 @@ resource "aws_lb_target_group" "ssh" {
 # TCP Load Balancer
 
 locals {
-  tcp_port_count = 10
+  tcp_port_count = "${var.use_tcp_routes ? 10 : 0}"
 }
 
 resource "aws_security_group" "tcp_lb" {
+  count       = "${var.use_tcp_routes ? 1 : 0}"
   name        = "tcp_lb_security_group"
   description = "Load Balancer TCP Security Group"
   vpc_id      = "${var.vpc_id}"
@@ -164,6 +169,7 @@ resource "aws_security_group" "tcp_lb" {
 }
 
 resource "aws_lb" "tcp" {
+  count                            = "${var.use_tcp_routes ? 1 : 0}"
   name                             = "${var.env_name}-tcp-lb"
   load_balancer_type               = "network"
   enable_cross_zone_load_balancing = true
@@ -185,7 +191,7 @@ resource "aws_lb_listener" "tcp" {
 }
 
 resource "aws_lb_target_group" "tcp" {
-  name     = "${var.env_name}-tg-${1024 + count.index}"
+  name     = "${var.env_name}-tcp-tg-${1024 + count.index}"
   port     = "${1024 + count.index}"
   protocol = "TCP"
   vpc_id   = "${var.vpc_id}"

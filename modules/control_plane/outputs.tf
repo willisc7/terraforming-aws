@@ -1,15 +1,5 @@
 output "domain" {
-  value = "${aws_route53_record.control_plane.*.name}"
-}
-
-output "lb_target_groups" {
-  value = [
-    "${aws_lb_target_group.atc_https.name}",
-    "${aws_lb_target_group.atc_http.name}",
-    "${aws_lb_target_group.tsa.name}",
-    "${aws_lb_target_group.uaa.name}",
-    "${aws_lb_target_group.credhub.name}",
-  ]
+  value = "${var.use_route53 ? aws_route53_record.control_plane.0.name : ""}"
 }
 
 output "subnet_ids" {
@@ -26,4 +16,28 @@ output "subnet_cidrs" {
 
 output "subnet_availability_zones" {
   value = ["${aws_subnet.control_plane.*.availability_zone}"]
+}
+
+output "credhub_lb_target_group" {
+  value = "${aws_lb_target_group.credhub.name}"
+}
+
+output "uaa_lb_target_group" {
+  value = "${aws_lb_target_group.uaa.name}"
+}
+
+output "atc_lb_target_group" {
+  value = "${aws_lb_target_group.atc.name}"
+}
+
+output "credhub_security_group" {
+  value = "${aws_security_group.credhub.name}"
+}
+
+output "uaa_security_group" {
+  value = "${aws_security_group.uaa.name}"
+}
+
+output "atc_security_group" {
+  value = "${aws_security_group.control_plane.name}"
 }

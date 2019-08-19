@@ -56,9 +56,7 @@ module "infra" {
 module "ops_manager" {
   source = "../modules/ops_manager"
 
-  vm_count       = "${var.ops_manager_vm ? 1 : 0}"
-  optional_count = "${var.optional_ops_manager ? 1 : 0}"
-  subnet_id      = "${local.ops_man_subnet_id}"
+  subnet_id = "${local.ops_man_subnet_id}"
 
   env_name                 = "${var.env_name}"
   region                   = "${var.region}"
@@ -116,10 +114,12 @@ module "pas" {
   public_subnet_ids  = "${module.infra.public_subnet_ids}"
   internetless       = "${var.internetless}"
 
-  bucket_suffix = "${local.bucket_suffix}"
-  zone_id       = "${module.infra.zone_id}"
-  dns_suffix    = "${var.dns_suffix}"
-  use_route53   = "${var.use_route53}"
+  bucket_suffix  = "${local.bucket_suffix}"
+  zone_id        = "${module.infra.zone_id}"
+  dns_suffix     = "${var.dns_suffix}"
+  use_route53    = "${var.use_route53}"
+  use_tcp_routes = "${var.use_tcp_routes}"
+  use_ssh_routes = "${var.use_ssh_routes}"
 
   create_backup_pas_buckets    = "${var.create_backup_pas_buckets}"
   create_versioned_pas_buckets = "${var.create_versioned_pas_buckets}"

@@ -39,12 +39,17 @@ module "infra" {
   tags         = "${local.actual_tags}"
 }
 
+module "add_ns_to_hosted_zone" {
+  source            = "../modules/add_ns_to_hosted_zone"
+  top_level_zone_id = "${var.top_level_zone_id}"
+  zone_name         = "${var.env_name}.${var.dns_suffix}"
+  name_servers      = "${module.infra.name_servers}"
+}
+
 module "ops_manager" {
   source = "../modules/ops_manager"
 
-  vm_count       = "${var.ops_manager_vm ? 1 : 0}"
-  optional_count = "${var.optional_ops_manager ? 1 : 0}"
-  subnet_id      = "${local.ops_man_subnet_id}"
+  subnet_id = "${local.ops_man_subnet_id}"
 
   env_name      = "${var.env_name}"
   region        = "${var.region}"
@@ -58,7 +63,6 @@ module "ops_manager" {
   zone_id       = "${module.infra.zone_id}"
   use_route53   = "${var.use_route53}"
 
-  # additional_iam_roles_arn = ["${module.pas.iam_pas_bucket_role_arn}"]
   bucket_suffix = "${local.bucket_suffix}"
 
   tags = "${local.actual_tags}"
@@ -77,6 +81,10 @@ module "control_plane" {
   dns_suffix              = "${var.dns_suffix}"
   zone_id                 = "${module.infra.zone_id}"
   use_route53             = "${var.use_route53}"
+
+  lb_cert_pem        = "${var.tls_wildcard_certificate}"
+  lb_issuer          = "${var.tls_ca_certificate}"
+  lb_private_key_pem = "${var.tls_private_key}"
 }
 
 module "rds" {

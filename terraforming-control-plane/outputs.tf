@@ -123,6 +123,10 @@ output "ops_manager_ssh_public_key" {
   value = "${module.ops_manager.ssh_public_key}"
 }
 
+output "ops_manager_subnet_id" {
+  value = "${local.ops_man_subnet_id}"
+}
+
 /******
 * RDS *
 *******/
@@ -150,8 +154,8 @@ output "control_plane_domain" {
   value = "${module.control_plane.domain}"
 }
 
-output "control_plane_lb_target_groups" {
-  value = "${module.control_plane.lb_target_groups}"
+output "control_plane_root_domain" {
+  value = "${var.env_name}.${var.dns_suffix}"
 }
 
 output "control_plane_subnet_ids" {
@@ -168,4 +172,32 @@ output "control_plane_subnet_cidrs" {
 
 output "control_plane_subnet_availability_zones" {
   value = "${module.control_plane.subnet_availability_zones}"
+}
+
+output "control_plane_credhub_target_group" {
+  value = "${module.control_plane.credhub_lb_target_group}"
+}
+
+output "control_plane_credhub_security_group" {
+  value = "${module.control_plane.credhub_security_group}"
+}
+
+output "control_plane_uaa_target_group" {
+  value = "${module.control_plane.uaa_lb_target_group}"
+}
+
+output "control_plane_uaa_security_group" {
+  value = "${module.control_plane.uaa_security_group}"
+}
+
+output "control_plane_web_target_group" {
+  value = "${module.control_plane.atc_lb_target_group}"
+}
+
+output "control_plane_web_security_group" {
+  value = "${module.control_plane.atc_security_group}"
+}
+
+output "control_plane_lb_ca_cert" {
+  value = "${var.tls_ca_certificate}"
 }

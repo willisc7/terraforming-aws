@@ -2,10 +2,6 @@ variable "region" {
   type = "string"
 }
 
-variable "optional_count" {}
-
-variable "vm_count" {}
-
 variable "private" {}
 
 variable "env_name" {}
@@ -22,6 +18,10 @@ variable "vpc_id" {}
 
 variable "vpc_cidr" {}
 
+variable "iam_users" {
+  default = 1
+}
+
 variable "additional_iam_roles_arn" {
   type    = "list"
   default = []
@@ -37,4 +37,9 @@ variable "bucket_suffix" {}
 
 variable "tags" {
   type = "map"
+}
+
+locals {
+  ops_man_vm          = "${var.ami == "" ? 0 : 1}"
+  optional_ops_man_vm = "${var.optional_ami == "" ? 0 : 1}"
 }

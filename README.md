@@ -52,7 +52,9 @@ Note: You will also need to create a custom policy as the following and add to
 }
 ```
 
-## Deploying Ops Manager and Configuring the BOSH Director
+## Deploying Infrastructure
+
+*Note:* If you're using Platform Automation, be sure to skip this step as explained [here](/README.md#ops-manager-optional). If you create your Ops Manager here, you will not be able to manage it with [Platform Automation](https://docs.pivotal.io/platform-automation).
 
 First, you'll need to clone this repo. Then, depending on if you're deploying PAS or PKS you need to perform the following steps:
 
@@ -61,6 +63,7 @@ First, you'll need to clone this repo. Then, depending on if you're deploying PA
     - [terraforming-pks/](terraforming-pks/)
     - [terraforming-control-plane/](terraforming-control-plane/)
 1. Create [`terraform.tfvars`](/README.md#var-file) file
+1. Populate [credentials](/README.md#credentials) file or env variables
 1. Run terraform apply:
   ```bash
   terraform init
@@ -85,8 +88,6 @@ You should fill in the stub values with the correct content.
 
 ```hcl
 env_name           = "some-environment-name"
-access_key         = "access-key-id"
-secret_key         = "secret-access-key"
 region             = "us-west-1"
 availability_zones = ["us-west-1a", "us-west-1c"]
 ops_manager_ami    = "ami-4f291f2f"
@@ -94,6 +95,8 @@ rds_instance_count = 1
 dns_suffix         = "example.com"
 vpc_cidr           = "10.0.0.0/16"
 use_route53        = true
+use_ssh_routes     = true
+use_tcp_routes     = true
 
 ssl_cert = <<EOF
 -----BEGIN CERTIFICATE-----
@@ -112,6 +115,28 @@ tags = {
     Project = "WebApp3"
 }
 ```
+
+### Credentials
+
+Create a `credentials.yml` file with the following contents:
+
+```
+provider "aws" {
+  access_key = "YOUR_AWS_ACCESS_KEY"
+  secret_key = "YOUR_AWS_SECRET_KEY"
+  region     = "YOUR_AWS_REGION"
+}
+```
+
+Alternatively, populate the following environment variables before running the `terraform plan`:
+
+```
+$ export AWS_ACCESS_KEY_ID="anaccesskey"
+$ export AWS_SECRET_ACCESS_KEY="asecretkey"
+$ export AWS_DEFAULT_REGION="us-west-2"
+```
+
+See Terraform documentation on the [AWS Provider](https://www.terraform.io/docs/providers/aws/) for more ways on providing credentials, especially if using [EC2 Roles](https://www.terraform.io/docs/providers/aws/#ec2-role) or [`AWS_SESSION_TOKEN`](https://www.terraform.io/docs/providers/aws/#environment-variables).
 
 #### Tips
 
@@ -133,8 +158,6 @@ pivnet login --api-token $PIVNET_API_TOKEN && \
 ### Variables
 
 - env_name: **(required)** An arbitrary unique name for namespacing resources
-- access_key **(required)** Your Amazon access_key, used for deployment
-- secret_key: **(required)** Your Amazon secret_key, also used for deployment
 - region: **(required)** Region you want to deploy your resources to
 - availability_zones: **(required)** List of AZs you want to deploy to
 - dns_suffix: **(required)** Domain to add environment subdomain to
@@ -145,17 +168,18 @@ pivnet login --api-token $PIVNET_API_TOKEN && \
 - ssl_ca_private_key: **(optional)** Private key for above SSL CA certificate. Required unless `ssl_cert` is specified.
 - tags: **(optional)** A map of AWS tags that are applied to the created resources. By default, the following tags are set: Application = Cloud Foundry, Environment = $env_name
 - vpc_cidr: **(default: 10.0.0.0/16)** Internal CIDR block for the AWS VPC.
+- use_route53: **(default: true)** Controls whether or not Route53 DNS resources are created.
+- use_ssh_routes: **(default: true)** Enable ssh routing
+- use_tcp_routes: **(default: true)** Controls whether or not tcp routing is enabled.
 
 ### Ops Manager (optional)
-- ops_manager_vm: **(default: true)** Set to false if you don't want an ops manager vm, but still want all the other resource included in the module.
-- ops_manager_ami: **(optional)**  Ops Manager AMI, get the right AMI according to your region from the AWS guide downloaded from [Pivotal Network](https://network.pivotal.io/products/ops-manager)
-- optional_ops_manager: **(default: false)** Set to true if you want an additional Ops Manager (useful for testing upgrades)
+- ops_manager_ami: **(optional)**  Ops Manager AMI, get the right AMI according to your region from the AWS guide downloaded from [Pivotal Network](https://network.pivotal.io/products/ops-manager) (if set to `""` no Ops Manager VM will be created)
 - optional_ops_manager_ami: **(optional)**  Additional Ops Manager AMI, get the right AMI according to your region from the AWS guide downloaded from [Pivotal Network](https://network.pivotal.io/products/ops-manager)
 - ops_manager_instance_type: **(default: m4.large)** Ops Manager instance type
 - ops_manager_private: **(default: false)** Set to true if you want Ops Manager deployed in a private subnet instead of a public subnet
 
 ### S3 Buckets (optional) (PAS only)
-- create_backup_pas_buckets: **(default: false)**  
+- create_backup_pas_buckets: **(default: false)**
 - create_versioned_pas_buckets: **(default: false)**
 
 ### RDS (optional)

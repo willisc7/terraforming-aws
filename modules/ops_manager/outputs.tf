@@ -3,11 +3,11 @@ output "bucket" {
 }
 
 output "public_ip" {
-  value = "${var.vm_count ? element(concat(aws_eip.ops_manager_attached.*.public_ip, list("")), 0) : element(concat(aws_eip.ops_manager_unattached.*.public_ip, list("")), 0)}"
+  value = "${local.ops_man_vm ? element(concat(aws_eip.ops_manager_attached.*.public_ip, list("")), 0) : element(concat(aws_eip.ops_manager_unattached.*.public_ip, list("")), 0)}"
 }
 
 output "dns" {
-  value = "${var.vm_count ? element(concat(aws_route53_record.ops_manager_attached_eip.*.name, list("")), 0) : element(concat(aws_route53_record.ops_manager_unattached_eip.*.name, list("")), 0)}"
+  value = "${local.ops_man_vm ? element(concat(aws_route53_record.ops_manager_attached_eip.*.name, list("")), 0) : element(concat(aws_route53_record.ops_manager_unattached_eip.*.name, list("")), 0)}"
 }
 
 output "optional_dns" {
@@ -39,19 +39,19 @@ output "ops_manager_private_ip" {
 }
 
 output "ops_manager_iam_instance_profile_name" {
-  value = "${aws_iam_instance_profile.ops_manager.name}"
+  value = "${element(concat(aws_iam_instance_profile.ops_manager.*.name, list("")), 0)}"
 }
 
 output "ops_manager_iam_user_name" {
-  value = "${aws_iam_user.ops_manager.name}"
+  value = "${element(concat(aws_iam_user.ops_manager.*.name, list("")), 0)}"
 }
 
 output "ops_manager_iam_user_access_key" {
-  value = "${aws_iam_access_key.ops_manager.id}"
+  value = "${element(concat(aws_iam_access_key.ops_manager.*.id, list("")), 0)}"
 }
 
 output "ops_manager_iam_user_secret_key" {
-  value     = "${aws_iam_access_key.ops_manager.secret}"
+  value     = "${element(concat(aws_iam_access_key.ops_manager.*.secret, list("")), 0)}"
   sensitive = true
 }
 
