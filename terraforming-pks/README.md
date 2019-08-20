@@ -15,6 +15,9 @@ export PIVNET_API_TOKEN=your-token
 
 om -k configure-authentication --decryption-passphrase ${OM_PASSWORD}
 om download-product --pivnet-api-token $PIVNET_API_TOKEN --stemcell-iaas aws -p pivotal-container-service -f "*.pivotal" -o . -r "^1..*"
+
+# Note: see which products fail due to EULA and log into pivnet and accept the EULA
+
 om -k upload-product --product $(ls -1 pivotal-container-service*.pivotal)
 om -k upload-stemcell --stemcell $(ls -1 light-bosh-stemcell*.tgz)
 
