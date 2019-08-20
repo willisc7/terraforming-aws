@@ -27,7 +27,7 @@ om -k upload-product --product $(ls -1 pivotal-container-service*.pivotal)
 om -k upload-stemcell --stemcell $(ls -1 light-bosh-stemcell*.tgz)
 om -k stage-product --product-name pivotal-container-service --product-version $(unzip -p pivotal-container-service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
 om -k create-vm-extension -n pks-api-lb-security-group -cp '{ "security_groups": ["pks_api_lb_security_group"] }'
-om -k configure-product -n pivotal-container-service -c <(texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
+om -k configure-product -c <(texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 om -k apply-changes
 export PKS_USER=admin
 export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/$(om curl --silent --path /api/v0/deployed/products | jq -r -c ".[1].guid")/credentials/.properties.uaa_admin_password | jq -r -c ".credential.value.secret")
