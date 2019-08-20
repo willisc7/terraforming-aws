@@ -11,7 +11,9 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
 export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME=admin
 export OM_PASSWORD=${OM_PASSWORD} # Change this to your password.
+export PIVNET_API_TOKEN=your-token
 
+om -k configure-authentication --decryption-passphrase ${OM_PASSWORD}
 om download-product --pivnet-api-token $PIVNET_API_TOKEN --stemcell-iaas aws -p pivotal-container-service -f "*.pivotal" -o . -r "^1..*"
 om -k upload-product --product $(ls -1 pivotal-container-service*.pivotal)
 om -k upload-stemcell --stemcell $(ls -1 light-bosh-stemcell*.tgz)
