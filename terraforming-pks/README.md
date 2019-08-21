@@ -63,9 +63,11 @@ terraform output ops_manager_ssh_private_key > ops_manager_ssh_private_key.pem &
 ### Shutting Down an Already Running Environment
 Note: assumes all environment variables are set in .envrc
 
-0. Delete PKS clusters: `pks delete-cluster`
+0. Delete PKS clusters: `pks delete-cluster a`
+0. Delete PKS bosh deployment: `bosh delete-deployment -d <PKS_DEPLOYMENT_ID>`
 
 ### Spinning Up an Already Configured Environment
 Note: assumes all environment variables are set in .envrc
 
+0. `om -k apply-changes`
 0. `pks create-cluster ${CLUSTER_NAME} -e ${CLUSTER_HOST} --plan medium`
