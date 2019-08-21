@@ -1,9 +1,14 @@
 # Terraforming PKS
 
 ## Prerequisites
-- install om cli
-- install jq and yq
+- install jq and yq (pip)
 - install texplate (https://github.com/pivotal-cf/texplate/releases/download/v0.3.0/texplate_linux_amd64)
+- PKS CLI (https://network.pivotal.io)
+- kubectl (curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl)
+- uaac (requires ruby-dev, https://github.com/cloudfoundry/cf-uaac)
+- om cli from https://github.com/pivotal-cf/om/releases
+- bosh cli from https://bosh.io/docs/cli-v2-install/
+- docker
 
 ## Configuring PKS
 
@@ -12,7 +17,6 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
 1. Download PKS, upload PKS tile to Ops Manager, stage PKS, configure PKS, and login to the `pks` cli.
 
 ```
-
 export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME=admin
 export OM_PASSWORD=${OM_PASSWORD} # Change this to your password.
@@ -26,18 +30,18 @@ om download-product --pivnet-api-token $PIVNET_API_TOKEN --stemcell-iaas aws -p 
 om -k upload-product --product $(ls -1 pivotal-container-service*.pivotal)
 om -k upload-stemcell --stemcell $(ls -1 light-bosh-stemcell*.tgz)
 om -k stage-product --product-name pivotal-container-service --product-version $(unzip -p pivotal-container-service*.pivotal 'metadata/*.yml' | yq -c -r '.product_version') 
-om -k create-vm-extension -n pks-api-lb-security-group -cp '{ "security_groups": ["pks_api_lb_security_group"] }'
-om -k configure-product -n pivotal-container-service -c <(texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
+om -k create-vm-extension -n pks-api-lb-security-groups -cp '{ "security_groups": ["pks_api_lb_security_group", "vms_security_group"] }'
+om -k configure-product -c <(texplate execute ../ci/assets/template/pks-config.yml -f <(jq -e --raw-output '.modules[0].outputs | map_values(.value)' terraform.tfstate) -o yaml)
 om -k apply-changes
-export PKS_USER=admin
-export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/$(om curl --silent --path /api/v0/deployed/products | jq -r -c ".[1].guid")/credentials/.properties.uaa_admin_password | jq -r -c ".credential.value.secret")
-export PKS_ENDPOINT=$(terraform output pks_api_endpoint)
-pks login -a ${PKS_ENDPOINT} -u ${PKS_USER} -p ${PKS_PASSWORD} -k
 ```
 
 1. Create a new cluster:
 
 ```
+export PKS_USER=admin
+export PKS_PASSWORD=$(om -k credentials --product-name pivotal-container-service -c .properties.uaa_admin_password -f secret)
+export PKS_ENDPOINT=$(terraform output pks_api_endpoint)
+pks login -a ${PKS_ENDPOINT} -u ${PKS_USER} -p ${PKS_PASSWORD} -k
 export CLUSTER_NAME="a"
 export CLUSTER_HOST="a.$(terraform output pks_domain)"
 pks create-cluster ${CLUSTER_NAME} -e ${CLUSTER_HOST} --plan medium
