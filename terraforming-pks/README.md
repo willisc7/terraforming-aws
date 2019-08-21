@@ -39,7 +39,7 @@ om -k apply-changes
 
 ```
 export PKS_USER=admin
-export PKS_PASSWORD=$(om curl --silent --path /api/v0/deployed/products/$(om curl --silent --path /api/v0/deployed/products | jq -r -c ".[1].guid")/credentials/.properties.uaa_admin_password | jq -r -c ".credential.value.secret")
+export PKS_PASSWORD=$(om -k credentials --product-name pivotal-container-service -c .properties.uaa_admin_password -f secret)
 export PKS_ENDPOINT=$(terraform output pks_api_endpoint)
 pks login -a ${PKS_ENDPOINT} -u ${PKS_USER} -p ${PKS_PASSWORD} -k
 export CLUSTER_NAME="a"
