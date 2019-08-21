@@ -1,9 +1,14 @@
 # Terraforming PKS
 
 ## Prerequisites
-- install om cli
 - install jq and yq
 - install texplate (https://github.com/pivotal-cf/texplate/releases/download/v0.3.0/texplate_linux_amd64)
+- PKS CLI from network.pivotal.io
+- kubectl (various sources)
+- uaac (requires ruby-dev)
+- om cli from https://github.com/pivotal-cf/om/releases
+- bosh cli from https://bosh.io/docs/cli-v2-install/
+- docker
 
 ## Configuring PKS
 
