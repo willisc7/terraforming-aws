@@ -1,11 +1,11 @@
 # Terraforming PKS
 
 ## Prerequisites
-- install jq and yq
+- install jq and yq (pip)
 - install texplate (https://github.com/pivotal-cf/texplate/releases/download/v0.3.0/texplate_linux_amd64)
-- PKS CLI from network.pivotal.io
-- kubectl (various sources)
-- uaac (requires ruby-dev)
+- PKS CLI (https://network.pivotal.io)
+- kubectl (brew)
+- uaac (requires ruby-dev, https://github.com/cloudfoundry/cf-uaac)
 - om cli from https://github.com/pivotal-cf/om/releases
 - bosh cli from https://bosh.io/docs/cli-v2-install/
 - docker
@@ -17,7 +17,6 @@ This assumes that you deployed Ops Manager and properly configured the BOSH Dire
 1. Download PKS, upload PKS tile to Ops Manager, stage PKS, configure PKS, and login to the `pks` cli.
 
 ```
-
 export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME=admin
 export OM_PASSWORD=${OM_PASSWORD} # Change this to your password.
