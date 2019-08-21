@@ -59,3 +59,13 @@ terraform output ops_manager_ssh_private_key > ops_manager_ssh_private_key.pem &
         chmod 600 ops_manager_ssh_private_key.pem && \
         ssh -oStrictHostKeyChecking=accept-new -oUserKnownHostsFile=/dev/null ubuntu@$(terraform output ops_manager_dns) -i ops_manager_ssh_private_key.pem
 ```
+
+### Shutting Down an Already Running Environment
+Note: assumes all environment variables are set in .envrc
+
+0. Delete PKS clusters: `pks delete-cluster`
+
+### Spinning Up an Already Configured Environment
+Note: assumes all environment variables are set in .envrc
+
+0. `pks create-cluster ${CLUSTER_NAME} -e ${CLUSTER_HOST} --plan medium`
