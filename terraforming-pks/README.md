@@ -65,9 +65,12 @@ Note: assumes all environment variables are set in .envrc
 
 0. Delete PKS clusters: `pks delete-cluster a`
 0. Delete PKS bosh deployment: `bosh delete-deployment -d <PKS_DEPLOYMENT_ID>`
+0. Shutdown OpsMan, Bosh, and jumpbox
 
 ### Spinning Up an Already Configured Environment
 Note: assumes all environment variables are set in .envrc
 
 0. `om -k apply-changes`
+0. `pks login -a ${PKS_ENDPOINT} -u ${PKS_USER} -p ${PKS_PASSWORD} -k`
 0. `pks create-cluster ${CLUSTER_NAME} -e ${CLUSTER_HOST} --plan medium`
+0. `pks get-credentials a`
